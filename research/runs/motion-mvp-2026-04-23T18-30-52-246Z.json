@@ -1,0 +1,138 @@
+{
+  "run_id": "motion-mvp-2026-04-23T18-30-52-246Z",
+  "program_id": "vidya-motion-mvp-offline-v1",
+  "timestamp": "2026-04-23T18:30:52.246Z",
+  "status": "pass",
+  "summary": {
+    "pass_threshold": 0.75,
+    "overall_score": 0.977,
+    "topics_passed": 3,
+    "topics_total": 3,
+    "scenarios_passed": 6,
+    "scenarios_total": 6
+  },
+  "topic_results": [
+    {
+      "topic_id": "distance-vs-displacement",
+      "path": "research/topics/distance-vs-displacement.md",
+      "score": 1,
+      "status": "pass",
+      "missing_sections": []
+    },
+    {
+      "topic_id": "speed-vs-velocity",
+      "path": "research/topics/speed-vs-velocity.md",
+      "score": 1,
+      "status": "pass",
+      "missing_sections": []
+    },
+    {
+      "topic_id": "acceleration",
+      "path": "research/topics/acceleration.md",
+      "score": 1,
+      "status": "pass",
+      "missing_sections": []
+    }
+  ],
+  "scenario_results": [
+    {
+      "scenario_id": "distance-return-home",
+      "concept": "distance-vs-displacement",
+      "score": 1,
+      "status": "pass",
+      "matched_phrases": [
+        "home",
+        "back",
+        "path",
+        "start",
+        "end",
+        "zero"
+      ],
+      "missing_phrases": [],
+      "triggered_forbidden_phrases": [],
+      "notes": []
+    },
+    {
+      "scenario_id": "distance-park-lap",
+      "concept": "distance-vs-displacement",
+      "score": 1,
+      "status": "pass",
+      "matched_phrases": [
+        "park",
+        "round",
+        "straight",
+        "route"
+      ],
+      "missing_phrases": [],
+      "triggered_forbidden_phrases": [],
+      "notes": []
+    },
+    {
+      "scenario_id": "velocity-opposite-directions",
+      "concept": "speed-vs-velocity",
+      "score": 0.91,
+      "status": "pass",
+      "matched_phrases": [
+        "direction",
+        "opposite",
+        "left",
+        "right"
+      ],
+      "missing_phrases": [
+        "same speed"
+      ],
+      "triggered_forbidden_phrases": [],
+      "notes": [
+        "Missing expected coverage: same speed"
+      ]
+    },
+    {
+      "scenario_id": "velocity-u-turn",
+      "concept": "speed-vs-velocity",
+      "score": 1,
+      "status": "pass",
+      "matched_phrases": [
+        "direction",
+        "u-turn",
+        "speed",
+        "velocity"
+      ],
+      "missing_phrases": [],
+      "triggered_forbidden_phrases": [],
+      "notes": []
+    },
+    {
+      "scenario_id": "acceleration-braking",
+      "concept": "acceleration",
+      "score": 1,
+      "status": "pass",
+      "matched_phrases": [
+        "brake",
+        "negative",
+        "change in velocity",
+        "time"
+      ],
+      "missing_phrases": [],
+      "triggered_forbidden_phrases": [],
+      "notes": []
+    },
+    {
+      "scenario_id": "acceleration-circular-motion",
+      "concept": "acceleration",
+      "score": 0.887,
+      "status": "pass",
+      "matched_phrases": [
+        "direction",
+        "same speed",
+        "velocity"
+      ],
+      "missing_phrases": [
+        "circle"
+      ],
+      "triggered_forbidden_phrases": [],
+      "notes": [
+        "Missing expected coverage: circle"
+      ]
+    }
+  ]
+}

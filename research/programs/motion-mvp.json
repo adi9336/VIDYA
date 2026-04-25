@@ -1,0 +1,64 @@
+{
+  "program_id": "vidya-motion-mvp-offline-v1",
+  "title": "Vidya AI Motion MVP Offline Research Program",
+  "objective": "Prepare tutoring artifacts for the three Motion concepts so the MVP can teach through analogy-first, Hinglish-friendly, Socratic conversations.",
+  "chapter": {
+    "grade": "Class 9",
+    "subject": "Physics",
+    "unit": "Motion"
+  },
+  "principles": [
+    "Analogy first, definition later.",
+    "Hinglish by default with Hindi fallback when confusion appears.",
+    "Use daily-life situations that Indian students have likely experienced.",
+    "Verify conceptual understanding with a simple reflection check, not an exam-style answer dump."
+  ],
+  "topic_briefs": [
+    {
+      "id": "distance-vs-displacement",
+      "path": "research/topics/distance-vs-displacement.md",
+      "required_sections": [
+        "Student Lens",
+        "Analogy Anchor",
+        "Tutor Moves",
+        "Misconceptions To Watch",
+        "Quick Check",
+        "Visual Cue"
+      ]
+    },
+    {
+      "id": "speed-vs-velocity",
+      "path": "research/topics/speed-vs-velocity.md",
+      "required_sections": [
+        "Student Lens",
+        "Analogy Anchor",
+        "Tutor Moves",
+        "Misconceptions To Watch",
+        "Quick Check",
+        "Visual Cue"
+      ]
+    },
+    {
+      "id": "acceleration",
+      "path": "research/topics/acceleration.md",
+      "required_sections": [
+        "Student Lens",
+        "Analogy Anchor",
+        "Tutor Moves",
+        "Misconceptions To Watch",
+        "Quick Check",
+        "Visual Cue"
+      ]
+    }
+  ],
+  "fixtures_path": "research/fixtures/motion-scenarios.json",
+  "result_schema_path": "research/formats/run-result.schema.json",
+  "scoring": {
+    "pass_threshold": 0.75,
+    "weights": {
+      "required_sections": 0.35,
+      "expected_phrases": 0.45,
+      "forbidden_phrases": 0.2
+    }
+  }
+}

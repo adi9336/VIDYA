@@ -1,0 +1,13 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="28" fill="#FFF8E6"/>
+  <circle cx="220" cy="210" r="120" stroke="#1E6D5A" stroke-width="18" stroke-dasharray="18 16"/>
+  <circle cx="220" cy="210" r="14" fill="#1E6D5A"/>
+  <circle cx="220" cy="210" r="8" fill="#FFF8E6"/>
+  <path d="M220 210H470" stroke="#FFB84D" stroke-width="14" stroke-linecap="round"/>
+  <path d="M460 198L492 210L460 222" stroke="#FFB84D" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="470" cy="210" r="16" fill="#18212F"/>
+  <text x="72" y="72" fill="#18212F" font-family="Arial, sans-serif" font-size="30" font-weight="700">Distance vs Displacement</text>
+  <text x="76" y="108" fill="#5F5647" font-family="Arial, sans-serif" font-size="22">Loop path is long. Final position change can still be zero.</text>
+  <text x="370" y="184" fill="#18212F" font-family="Arial, sans-serif" font-size="20" font-weight="700">Shortest change</text>
+  <text x="114" y="358" fill="#5F5647" font-family="Arial, sans-serif" font-size="20">Runner completes a round and returns home.</text>
+</svg>

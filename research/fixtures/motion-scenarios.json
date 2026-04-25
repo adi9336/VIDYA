@@ -1,0 +1,93 @@
+{
+  "program_id": "vidya-motion-mvp-offline-v1",
+  "scenarios": [
+    {
+      "id": "distance-return-home",
+      "concept": "distance-vs-displacement",
+      "student_prompt": "Main ghar se market gaya aur phir wapas ghar aa gaya. Phir displacement zero kaise ho sakta hai?",
+      "expected_phrases": [
+        "home",
+        "back",
+        "path",
+        "start",
+        "end",
+        "zero"
+      ],
+      "forbidden_phrases": [
+        "just memorize",
+        "definition rat lo"
+      ]
+    },
+    {
+      "id": "distance-park-lap",
+      "concept": "distance-vs-displacement",
+      "student_prompt": "Agar main park ka ek round lagaun to distance aur displacement same honge ya alag?",
+      "expected_phrases": [
+        "park",
+        "round",
+        "straight",
+        "route"
+      ],
+      "forbidden_phrases": [
+        "formula first"
+      ]
+    },
+    {
+      "id": "velocity-opposite-directions",
+      "concept": "speed-vs-velocity",
+      "student_prompt": "Do bachche same speed se opposite direction me bhaage to kya dono ki velocity same hogi?",
+      "expected_phrases": [
+        "direction",
+        "same speed",
+        "opposite",
+        "left",
+        "right"
+      ],
+      "forbidden_phrases": [
+        "speed and velocity are always same"
+      ]
+    },
+    {
+      "id": "velocity-u-turn",
+      "concept": "speed-vs-velocity",
+      "student_prompt": "Agar bus same speed par U-turn le to kya change hota hai?",
+      "expected_phrases": [
+        "direction",
+        "u-turn",
+        "speed",
+        "velocity"
+      ],
+      "forbidden_phrases": [
+        "nothing changes"
+      ]
+    },
+    {
+      "id": "acceleration-braking",
+      "concept": "acceleration",
+      "student_prompt": "Brake lagne par bhi acceleration bolte hain kya?",
+      "expected_phrases": [
+        "brake",
+        "negative",
+        "change in velocity",
+        "time"
+      ],
+      "forbidden_phrases": [
+        "acceleration means only speeding up"
+      ]
+    },
+    {
+      "id": "acceleration-circular-motion",
+      "concept": "acceleration",
+      "student_prompt": "Agar speed same hai aur cycle gol ghoom rahi hai to acceleration kyu hoga?",
+      "expected_phrases": [
+        "direction",
+        "circle",
+        "same speed",
+        "velocity"
+      ],
+      "forbidden_phrases": [
+        "no acceleration if speed is constant"
+      ]
+    }
+  ]
+}

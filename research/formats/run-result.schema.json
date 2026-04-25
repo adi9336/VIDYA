@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vidya Offline Research Run Result",
+  "type": "object",
+  "required": [
+    "run_id",
+    "program_id",
+    "timestamp",
+    "status",
+    "summary",
+    "topic_results",
+    "scenario_results"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "program_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "pass_threshold",
+        "overall_score",
+        "topics_passed",
+        "topics_total",
+        "scenarios_passed",
+        "scenarios_total"
+      ],
+      "properties": {
+        "pass_threshold": {
+          "type": "number"
+        },
+        "overall_score": {
+          "type": "number"
+        },
+        "topics_passed": {
+          "type": "integer"
+        },
+        "topics_total": {
+          "type": "integer"
+        },
+        "scenarios_passed": {
+          "type": "integer"
+        },
+        "scenarios_total": {
+          "type": "integer"
+        }
+      }
+    },
+    "topic_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "topic_id",
+          "path",
+          "score",
+          "status",
+          "missing_sections"
+        ]
+      }
+    },
+    "scenario_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "concept",
+          "score",
+          "status",
+          "matched_phrases",
+          "missing_phrases",
+          "triggered_forbidden_phrases"
+        ]
+      }
+    }
+  }
+}

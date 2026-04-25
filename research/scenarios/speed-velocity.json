@@ -1,0 +1,7 @@
+{
+  "conceptId": "speed-velocity",
+  "studentPrompt": "Agar do bikes 40 km/h chal rahi hain but opposite direction me, to difference kya hai?",
+  "confusionSignal": "curious",
+  "mustContain": ["direction"],
+  "mustAvoid": ["vector bina explanation"]
+}

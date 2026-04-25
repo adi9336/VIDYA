@@ -1,0 +1,7 @@
+{
+  "conceptId": "acceleration",
+  "studentPrompt": "Car same speed se ghoom rahi ho to acceleration hoga kya?",
+  "confusionSignal": "understood",
+  "mustContain": ["velocity change", "direction"],
+  "mustAvoid": ["sirf speed change"]
+}

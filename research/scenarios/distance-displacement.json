@@ -1,0 +1,7 @@
+{
+  "conceptId": "distance-displacement",
+  "studentPrompt": "Main school se ghar aa gaya aur phir wapas school gaya. Distance aur displacement kya honge?",
+  "confusionSignal": "still-confused",
+  "mustContain": ["path", "final position"],
+  "mustAvoid": ["sirf formula"]
+}

@@ -1,0 +1,23 @@
+<svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="720" height="480" rx="32" fill="#F4F8F3"/>
+  <rect x="34" y="34" width="652" height="412" rx="28" fill="#FDFFFC" stroke="#DCE8D8" stroke-width="4"/>
+  <text x="72" y="92" fill="#1E293B" font-family="Verdana, sans-serif" font-size="28" font-weight="700">Acceleration</text>
+  <text x="72" y="124" fill="#475569" font-family="Verdana, sans-serif" font-size="18">Acceleration appears whenever velocity changes with time.</text>
+  <line x1="84" y1="340" x2="432" y2="340" stroke="#94A3B8" stroke-width="6" stroke-linecap="round"/>
+  <rect x="154" y="258" width="164" height="62" rx="16" fill="#FDBA74" stroke="#EA580C" stroke-width="4"/>
+  <rect x="176" y="236" width="114" height="34" rx="12" fill="#FED7AA" stroke="#FB923C" stroke-width="3"/>
+  <circle cx="190" cy="326" r="18" fill="#334155"/>
+  <circle cx="282" cy="326" r="18" fill="#334155"/>
+  <path d="M112 220H220" stroke="#10B981" stroke-width="8" stroke-linecap="round"/>
+  <path d="M206 206L234 220L206 234" fill="none" stroke="#10B981" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M318 220H408" stroke="#EF4444" stroke-width="8" stroke-linecap="round"/>
+  <path d="M332 206L304 220L332 234" fill="none" stroke="#EF4444" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="102" y="190" fill="#047857" font-family="Verdana, sans-serif" font-size="20" font-weight="700">speeding up</text>
+  <text x="308" y="190" fill="#B91C1C" font-family="Verdana, sans-serif" font-size="20" font-weight="700">slowing down</text>
+  <path d="M500 350V198" stroke="#64748B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M500 350H638" stroke="#64748B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M518 320L548 290L580 250L620 214" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="520" y="382" fill="#334155" font-family="Verdana, sans-serif" font-size="18">time</text>
+  <text x="448" y="208" fill="#334155" font-family="Verdana, sans-serif" font-size="18">velocity</text>
+  <text x="516" y="164" fill="#1D4ED8" font-family="Verdana, sans-serif" font-size="20" font-weight="700">change over time</text>
+</svg>
