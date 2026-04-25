@@ -1,8 +1,8 @@
 # VIDYA_AI
 
-Vidya AI is a Motion-chapter MVP for a Hinglish-first conversational tutor aimed at Class 9 students.
+Vidya AI is a Hinglish-first voice and chat senior buddy that can become a tutor when the student asks for help.
 
-The repo now includes a working `Next.js` app shell, typed API routes, Motion content packs, base SVG illustrations, a tutoring orchestrator, and an offline `autoresearch`-style research loop for improving prompts and lesson flows.
+The repo now includes a working `Next.js` app shell, typed API routes, browser voice input, spoken replies, an adaptive conversation orchestrator, Motion specialist content packs for relevant questions, and an offline `autoresearch`-style research loop for improving prompts and learning flows.
 
 ## Current Product Docs
 
@@ -30,7 +30,7 @@ node scripts/research-runner.js
 This project now includes a LiveKit realtime voice path:
 
 - Frontend token route: `src/app/api/livekit/token/route.ts`
-- LiveKit client UI: `src/features/tutor/client/TutorExperience.tsx`
+- Voice and chat UI: `src/features/tutor/client/TutorExperience.tsx`
 - Python agent worker: `agents/livekit/vidya_agent.py`
 - Setup guide: [docs/LIVEKIT.md](C:\Users\ADITYA GUPTA\VIDYA_AI\docs\LIVEKIT.md)
 
@@ -79,6 +79,6 @@ OPENAI_API_KEY=
 ## Next Steps
 
 1. Replace mock provider adapters with real model, STT, and TTS integrations.
-2. Expand the tutoring engine from deterministic concept packs to structured model outputs.
+2. Expand the adaptive conversation engine from deterministic specialist packs to structured model outputs.
 3. Add real student-session telemetry and acceptance testing.
-4. Use `research/` to iterate on Motion prompts before expanding to more chapters.
+4. Use `research/` to improve buddy-style explanations and specialist chapter packs.

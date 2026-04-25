@@ -3,13 +3,17 @@ import { elevenLabsSynthesize, elevenLabsTranscribe, hasElevenLabsConfig } from 
 import { getOpenAIClient, hasOpenAIConfig } from "@/lib/providers/openai-client";
 import type { SpeechToTextResponse, TextToSpeechResponse } from "@/types/api";
 
+function mockTranscription(): SpeechToTextResponse {
+  return {
+    transcript: "Mujhe speed aur velocity ka difference samajhna hai.",
+    languageGuess: "hinglish",
+    confidence: 0.51
+  };
+}
+
 export async function transcribeAudio(file?: File): Promise<SpeechToTextResponse> {
   if (env.speechToTextProvider === "mock") {
-    return {
-      transcript: "Mujhe speed aur velocity ka difference samajhna hai.",
-      languageGuess: "hinglish",
-      confidence: 0.51
-    };
+    return mockTranscription();
   }
 
   if (!file) {
@@ -18,7 +22,7 @@ export async function transcribeAudio(file?: File): Promise<SpeechToTextResponse
 
   if (env.speechToTextProvider === "elevenlabs") {
     if (!hasElevenLabsConfig()) {
-      throw new Error("SPEECH_TO_TEXT_PROVIDER is set to elevenlabs but ELEVENLABS_API_KEY is missing.");
+      return mockTranscription();
     }
 
     const transcription = await elevenLabsTranscribe(file);
@@ -31,7 +35,7 @@ export async function transcribeAudio(file?: File): Promise<SpeechToTextResponse
 
   if (env.speechToTextProvider === "openai") {
     if (!hasOpenAIConfig()) {
-      throw new Error("SPEECH_TO_TEXT_PROVIDER is set to openai but OPENAI_API_KEY is missing.");
+      return mockTranscription();
     }
 
     const client = getOpenAIClient();
@@ -72,7 +76,10 @@ export async function synthesizeSpeechAudio(text: string): Promise<{
 
   if (env.textToSpeechProvider === "elevenlabs") {
     if (!hasElevenLabsConfig()) {
-      throw new Error("TEXT_TO_SPEECH_PROVIDER is set to elevenlabs but ELEVENLABS_API_KEY is missing.");
+      return {
+        contentType: "audio/mpeg",
+        buffer: Buffer.alloc(0)
+      };
     }
 
     return {
@@ -82,7 +89,10 @@ export async function synthesizeSpeechAudio(text: string): Promise<{
   }
 
   if (!hasOpenAIConfig()) {
-    throw new Error("TEXT_TO_SPEECH_PROVIDER is set to openai but OPENAI_API_KEY is missing.");
+    return {
+      contentType: "audio/mpeg",
+      buffer: Buffer.alloc(0)
+    };
   }
 
   if (env.textToSpeechProvider === "openai") {

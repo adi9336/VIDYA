@@ -1,0 +1,40 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: V
+          - generic [ref=e9]:
+            - paragraph [ref=e10]: Vidya AI
+            - paragraph [ref=e11]: Thinking
+        - combobox [ref=e12]:
+          - option "Distance vs Displacement" [selected]
+          - option "Speed vs Velocity"
+          - option "Acceleration"
+      - main [ref=e13]:
+        - generic [ref=e14]:
+          - paragraph [ref=e15]: Voice and chat
+          - paragraph [ref=e16]: Total kitna ghoome aur start se finish tak seedhi line mein kitna shift hue, dono same honge kya?
+        - generic [ref=e17]:
+          - generic [ref=e39]:
+            - generic [ref=e40]: Vidya
+            - text: Distance vs Displacement pe baat karte hain.
+          - generic [ref=e41]:
+            - generic [ref=e42]: You
+            - text: velocity kya hoti hai
+          - generic [ref=e43]:
+            - generic [ref=e44]: Vidya
+            - text: Jab tum cycle se cepat chal rahe ho, aur friend se bolte ho "main kitni fast jaa raha hoon, aur kis direction mein?"—voh velocity hoti hai. Velocity sirf speed nahi, direction bhi batata hai. Matlab, speed + direction = velocity.
+          - generic [ref=e45]: Vidya is thinking...
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - button "Got it" [ref=e22] [cursor=pointer]
+            - button "Still confused" [ref=e23] [cursor=pointer]
+            - button "Go deeper" [ref=e24] [cursor=pointer]
+          - generic [ref=e25]:
+            - button "Start recording" [disabled] [ref=e26]: Mic
+            - textbox "Type your doubt..." [active] [ref=e27]
+            - button "Send" [disabled] [ref=e28]
+  - button "Open Next.js Dev Tools" [ref=e34] [cursor=pointer]:
+    - img [ref=e35]
+  - alert [ref=e38]

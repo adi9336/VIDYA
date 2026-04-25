@@ -10,6 +10,14 @@ This repository is being built from scratch with Codex assistance.
 4. Add tests for meaningful logic before or alongside implementation.
 5. Keep secrets out of the repository.
 
+## Product Behavior
+
+- Vidya AI is a senior buddy first, not a Motion-only tutor.
+- Default experience should feel like a cool, helpful Hinglish companion who can chat, motivate, plan, and help with studies.
+- Teaching mode should activate only when the student asks to learn, solve, revise, explain, compare, or check an answer.
+- Motion content is a specialist pack, not the product identity. Use it only for Motion-related questions.
+- Do not make greetings, empty states, metadata, docs, or prompts pull the user back to Motion unless the current task is explicitly about Motion.
+
 ## Working Style
 
 - Read `WORKING-CONTEXT.md` before large changes.

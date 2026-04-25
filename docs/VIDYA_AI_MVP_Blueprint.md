@@ -1,6 +1,6 @@
 # VIDYA AI
 
-_An AI-powered conversational tutor for Class 9-12 students_
+_An AI-powered senior buddy and adaptive tutor for Class 9-12 students_
 
 MVP Blueprint and Product Vision Document
 
@@ -11,16 +11,16 @@ Date: April 2025
 
 Most AI tools available today are built for developers, researchers, or adults who already understand technology. There is a large untapped gap: Class 9 to 12 students in India who are curious about the world, smart, and eager, but do not have a guided, age-appropriate AI companion to learn with.
 
-Vidya AI is built to fill that gap. It is not another explainer tool. It is a thinking partner that meets the student in their world, speaks in their language (Hinglish), and teaches through real-world analogies and Socratic conversation.
+Vidya AI is built to fill that gap. It is not another explainer tool and not a chapter-bound tutor. It is a senior buddy that meets the student in their world, speaks in their language (Hinglish), chats naturally, and switches into teaching only when the student asks for help.
 
 > **Product North Star**  
-> Core principle: NCERT for accuracy. Our design for experience.
+> Core principle: buddy first, tutor on demand, specialist packs for accuracy.
 
 ## 2. The Problem We Are Solving
 
 ### 2.1 What Students Face Today
 
-A Class 9 student who wants to understand Physics faces this reality:
+A student who wants help with school or life around school faces this reality:
 
 - YouTube tutorials are too scattered, with no structure and no feedback.
 - ChatGPT gives answers but does not build understanding.
@@ -31,10 +31,10 @@ The result is that students use AI as a copy-paste machine, not a learning tool.
 
 ### 2.2 The Deeper Problem: Wrong Mental Model
 
-Before even teaching Physics, the bigger challenge is that many students have a broken mental model of what science even is. They think:
+Before even teaching, the bigger challenge is that many students do not feel safe asking rough, half-formed questions. They think:
 
 - Science means formulas to memorize for exams.
-- Physics is something only IITians understand.
+- Hard topics are something only toppers understand.
 - AI is ChatGPT magic, not something they can understand or build.
 
 Vidya AI fixes the perception before fixing the knowledge.
@@ -61,36 +61,37 @@ This is Socratic and analogical teaching. The AI never tells the student what ev
 |---|---|
 | Class 9-10 | In "mugging up" mode. AI feels like sci-fi. They need concepts explained like stories through things they already experience daily. |
 | Class 11-12 | Starting analytical thinking. They want to understand how things work. They are intimidated but genuinely curious and ready for slightly deeper dives. |
-| Both segments | They do not wake up wanting to "learn Physics." They wake up wanting to feel smart, impress friends, and understand the world around them. |
+| Both segments | They do not wake up wanting a formal lesson. They wake up wanting to feel smart, impress friends, and understand the world around them. |
 
 ## 5. MVP Scope
 
 ### 5.1 Why We Start Small
 
-The temptation is to build everything: all subjects, all chapters, and all grades. That is the wrong approach for the MVP. One perfect analogy conversation is worth more than 50 average ones. The MVP must prove the core magic works before expanding.
+The temptation is to build everything: all subjects, all chapters, and all grades. That is the wrong approach for the MVP. One believable senior-buddy conversation is worth more than 50 average explanations. The MVP must prove that Vidya feels present, useful, and adaptive before expanding.
 
 > **MVP Scope**  
-> Focus: Class 9 Physics, Chapter: Motion  
-> Concepts: Distance vs Displacement, Speed vs Velocity, Acceleration
+> Focus: Realtime Hinglish companion experience  
+> Core modes: Buddy, Tutor, Study Coach, Clarifier, Safety, and specialist content when relevant  
+> First specialist pack: Class 9 Physics Motion, used only for Motion-related questions
 
-### 5.2 Why Motion First
+### 5.2 Why Senior Buddy First
 
-Motion is the ideal MVP chapter because every student has already lived it:
+Students do not always arrive with a clean academic question. They may say they are bored, stuck, confused, stressed, or just want to talk. If Vidya immediately pushes Motion, it feels fake. The default experience must be:
 
-- Felt a bus brake suddenly.
-- Ran fast and slow.
-- Watched a ball roll and stop.
-- Walked in a circle and returned home.
+- Casual and warm for normal conversation.
+- Useful for planning, motivation, and focus.
+- Ready to teach when the student asks.
+- Accurate when a specialist subject pack is triggered.
 
-The analogies are already in their life. The product just needs to surface them through conversation.
+Motion remains the first specialist pack because it is easy to explain with lived experience, but it is not the product identity.
 
 ### 5.3 MVP Roadmap by Phase
 
 | Phase | What We Build | What We Learn |
 |---|---|---|
-| MVP (Now) | Motion chapter only, with 3 core concepts, full analogy conversation flows, voice support, and base illustrations | Whether the Socratic style works, whether students stay engaged, and whether the "Ohh" moment happens |
-| Phase 2 | Full Physics syllabus with all 5 chapters and complete illustration library | Which concepts need the most support and which analogy styles resonate most |
-| Phase 3 | Chemistry and Biology, fully optimized Hinglish, and student progress tracking | Cross-subject patterns, retention, and return rate |
+| MVP (Now) | Senior-buddy LiveKit voice/chat experience with adaptive modes and one Motion specialist pack | Whether Vidya feels natural, whether mode switching works, and whether students stay engaged |
+| Phase 2 | More specialist packs for common school topics plus better coach workflows | Which student intents repeat and which specialist packs matter most |
+| Phase 3 | Full curriculum expansion, optimized Hinglish, and student progress tracking | Cross-subject patterns, retention, and return rate |
 | Phase 4 | Fine-tuned model trained on real student conversation data from phases 1-3 | A proprietary teaching moat built from real interaction data |
 
 ## 6. Technical Architecture
@@ -123,12 +124,14 @@ This is the most distinctive technical decision in Vidya AI. Visuals work in two
 The system prompt must encode:
 
 - Student profile: Class 9, age about 14, Hinglish speaker, Indian school context
-- Teaching philosophy: analogy first, never definition first
-- Conversation style: Socratic, ask before telling, let the student connect dots
+- Default behavior: senior buddy first, not teacher first
+- Teaching philosophy: tutor only when asked; analogy first unless the student asks direct
+- Conversation style: casual in buddy mode, Socratic in tutor mode, practical in study coach mode
 - Personality: friendly senior student, not a teacher or bot
 - Language rules: Hinglish by default, switch to Hindi if the student struggles
 - Pacing rules: slow down when the student says "samajh nahi aaya" and celebrate "Ohh" moments
-- Visual triggers: when to surface which illustration and when to modify it
+- Specialist routing: use Motion content only when the student asks about Motion
+- Visual triggers: surface specialist visuals only when they help the current learning question
 
 ## 7. The Student Experience
 
@@ -136,13 +139,12 @@ The system prompt must encode:
 
 A student opens Vidya AI and sees a clean, friendly chat interface. A voice greets them in Hinglish. They can type or speak. The journey begins:
 
-- The system asks, "Aaj kya samajhna hai?"
-- The student picks or types a concept like "velocity kya hoti hai."
-- The system does not define velocity immediately. It asks, "Kabhi kisi race mein daudha hai?"
-- The conversation flows through analogy and a base illustration appears alongside it.
-- The student reaches the "Ohh" moment organically.
-- The system confirms understanding with a simple question, not a test.
-- The illustration adapts if the conversation goes in a new direction.
+- The system greets like a senior buddy, not like a lesson screen.
+- If the student chats casually, Vidya chats back naturally.
+- If the student asks for focus help, Vidya becomes a study coach.
+- If the student asks a learning question, Vidya switches into tutor mode.
+- If the question is about Motion, Vidya uses the Motion specialist pack and visuals.
+- The student reaches the "Ohh" moment organically when teaching is actually needed.
 
 ### 7.2 What Makes This Different from ChatGPT
 
@@ -154,6 +156,7 @@ A student opens Vidya AI and sees a clean, friendly chat interface. A voice gree
 | Mostly static text output | Voice, adaptive visuals, and conversation |
 | No memory of confusion | Recognizes confusion and changes approach |
 | English default | Hinglish default with Hindi fallback |
+| Forces a tutoring frame | Starts as a buddy and teaches only on demand |
 
 ## 8. How We Validate the MVP
 
@@ -179,9 +182,9 @@ Put the MVP in front of 5 real Class 9 students. Do not pitch it. Just observe.
 
 ## 9. The Bigger Vision
 
-Motion is the starting point. But Vidya AI is not a Physics tutor. It is a new way of learning that can work for any subject, any concept, and any student.
+The senior-buddy experience is the starting point. Motion is only the first specialist pack. Vidya AI is not a Physics tutor; it is a companion that can become a tutor whenever the student needs one.
 
-- Short term: all of Class 9 Physics, then Chemistry, then Biology
+- Short term: make the senior-buddy interaction feel natural, then add the most requested specialist packs
 - Medium term: Class 10, 11, and 12 with full curriculum coverage
 - Long term: a fine-tuned model trained on thousands of real student conversations, creating a durable teaching moat
 - Ultimate vision: the friendly senior every Indian school student deserves but rarely gets

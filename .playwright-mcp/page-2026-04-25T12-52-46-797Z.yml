@@ -1,0 +1,28 @@
+- main [ref=e2]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: V
+        - generic [ref=e9]:
+          - paragraph [ref=e10]: Vidya AI
+          - paragraph [ref=e11]: Chat ready
+      - combobox [ref=e12]:
+        - option "Distance vs Displacement"
+        - option "Speed vs Velocity" [selected]
+        - option "Acceleration"
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: Voice and chat
+        - paragraph [ref=e16]: Speed aur velocity same lagte hain ya different?
+      - generic [ref=e18]:
+        - generic [ref=e19]: Vidya
+        - text: Hi, main Vidya hoon. Doubt type karo ya mic se bolo.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - button "Got it" [ref=e22] [cursor=pointer]
+          - button "Still confused" [ref=e23] [cursor=pointer]
+          - button "Go deeper" [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - button "Start recording" [ref=e26] [cursor=pointer]: Mic
+          - textbox "Type your doubt..." [ref=e27]
+          - button "Send" [disabled] [ref=e28]

@@ -9,19 +9,20 @@ Students in Classes 9-12 often get answers from existing tools but do not build 
 ## Users
 
 - Primary: Indian students in Classes 9-12
-- MVP priority: Class 9 students learning Physics
+- MVP priority: Indian school students who need a buddy-style explanation before formal study
 - Language context: Hinglish-first, with Hindi fallback when needed
 
 ## Core Outcome
 
-Help students reach genuine conceptual understanding through analogy-first, Socratic conversations that create an "Ohh" moment rather than a copy-paste answer.
+Make students feel like they have a smart senior buddy available: someone they can casually talk to, ask for study support, and switch into tutoring with when they need a real explanation.
 
 ## Version 1 Scope
 
-- Focus on Class 9 Physics
-- Start with the Motion chapter
-- Cover Distance vs Displacement, Speed vs Velocity, and Acceleration
-- Deliver chat-based tutoring with guided conversation
+- Behave like a general senior buddy by default
+- Support casual conversation, motivation, planning, and study coaching without forcing a lesson
+- Switch into tutoring only when the student asks to learn, solve, revise, explain, compare, or check an answer
+- Use Motion specialist content only when the student asks Motion-related questions
+- Deliver voice and chat tutoring with guided conversation
 - Support a mobile-first student experience
 - Include base concept illustrations and room for adaptive visuals
 

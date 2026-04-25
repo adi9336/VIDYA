@@ -1,391 +1,380 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  LiveKitRoom,
-  RoomAudioRenderer,
-  useChat,
-  useConnectionState,
-  useLocalParticipant,
-  useVoiceAssistant
-} from "@livekit/components-react";
-import { ConnectionState } from "livekit-client";
+import { useEffect, useRef, useState } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import type { ChatResponse, SpeechToTextResponse } from "@/types/api";
+import type { ConceptId, Message, UnderstandingSignal } from "@/types/session";
 
-interface LiveKitSession {
-  serverUrl: string;
-  token: string;
-  roomName: string;
-  identity: string;
+interface ChatMessage extends Message {
+  id: string;
 }
 
-const ROOM_STORAGE_KEY = "vidya-livekit-room";
+type InputMode = "text" | "voice";
+type RecordingState = "idle" | "recording" | "processing";
 
-function formatAgentState(state: string, connected: boolean, micEnabled: boolean) {
-  if (!connected) {
-    return "connecting";
-  }
+const SESSION_ID = "vidya-browser-session";
 
-  if (state === "connecting" || state === "initializing" || state === "pre-connect-buffering") {
-    return "agent starting";
-  }
-
-  if (state === "failed") {
-    return "agent unavailable";
-  }
-
-  if (state === "listening" && micEnabled) {
-    return "listening";
-  }
-
-  if (state === "thinking") {
-    return "thinking";
-  }
-
-  if (state === "speaking") {
-    return "speaking";
-  }
-
-  if (!micEnabled) {
-    return "mic muted";
-  }
-
-  return "ready";
+function createMessage(role: Message["role"], content: string): ChatMessage {
+  return {
+    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    role,
+    content
+  };
 }
 
-function LiveVoiceSurface({ roomName, onLeave }: { roomName: string; onLeave: () => void }) {
-  const connectionState = useConnectionState();
-  const { localParticipant, isMicrophoneEnabled, lastMicrophoneError } = useLocalParticipant();
-  const { state, agentTranscriptions } = useVoiceAssistant();
-  const chatOptions = useMemo(() => ({ channelTopic: "vidya.text" }), []);
-  const { chatMessages, send, isSending } = useChat(chatOptions);
-  const [textInput, setTextInput] = useState("");
-  const transcriptEndRef = useRef<HTMLDivElement | null>(null);
-  const chatEndRef = useRef<HTMLDivElement | null>(null);
-  const connected = connectionState === ConnectionState.Connected;
-  const latestAgentText = useMemo(() => {
-    const finalSegments = agentTranscriptions.filter((segment) => segment.final);
-    const latest = finalSegments.at(-1) ?? agentTranscriptions.at(-1);
-    return latest?.text?.trim();
-  }, [agentTranscriptions]);
-  const transcriptItems = useMemo(
-    () =>
-      agentTranscriptions
-        .filter((segment) => segment.text?.trim())
-        .slice(-8)
-        .map((segment) => ({
-          id: segment.id,
-          text: segment.text.trim(),
-          final: segment.final
-        })),
-    [agentTranscriptions]
-  );
-  const readableState = formatAgentState(state, connected, isMicrophoneEnabled);
-  const agentReady = connected && !["connecting", "pre-connect-buffering", "failed"].includes(state);
-  const canUseControls = connected && agentReady;
+function getSupportedMimeType() {
+  const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+  return candidates.find((type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type));
+}
 
-  useEffect(() => {
-    transcriptEndRef.current?.scrollIntoView({ block: "end" });
-  }, [transcriptItems.length, latestAgentText]);
+function stopStream(stream: MediaStream | null) {
+  stream?.getTracks().forEach((track) => track.stop());
+}
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ block: "end" });
-  }, [chatMessages.length]);
+function inferConceptId(message: string, currentConceptId: ConceptId): ConceptId {
+  const normalized = message.toLowerCase();
 
-  async function toggleMic() {
-    if (!canUseControls) {
-      return;
-    }
-
-    await localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
+  if (/\b(acceleration|accelerate|deceleration|tez|slow|direction change)\b/.test(normalized)) {
+    return "acceleration";
   }
 
-  async function sendTextMessage() {
-    const message = textInput.trim();
-    if (!message || isSending || !canUseControls) {
-      return;
-    }
-
-    setTextInput("");
-    await send(message);
+  if (/\b(speed|velocity|fast|slow|direction|speedometer)\b/.test(normalized)) {
+    return "speed-velocity";
   }
 
-  return (
-    <section className="relative z-10 flex h-svh min-h-0 w-full flex-col overflow-hidden px-4 py-4 sm:px-5 sm:py-5">
-      <header className="mx-auto flex w-full max-w-7xl shrink-0 items-center justify-between text-white/80">
-        <div className="flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.06] text-sm font-semibold">
-            V
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Vidya AI</p>
-            <p className="text-xs text-white/45">LiveKit realtime room</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={onLeave}
-          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/60"
-        >
-          Leave
-        </button>
-      </header>
+  if (/\b(distance|displacement|path|shortest|position|shift)\b/.test(normalized)) {
+    return "distance-displacement";
+  }
 
-      <div className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-5 overflow-y-auto py-4 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_420px] lg:overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 18, scale: 0.99 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="flex min-h-[520px] w-full flex-col items-center justify-center lg:min-h-0"
-        >
-          <div className="relative grid size-[260px] place-items-center sm:size-[340px]">
-            <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-3xl" />
-            <div className="absolute size-full rounded-full border border-white/10" />
-            <div
-              className={[
-                "absolute size-[78%] rounded-full border transition",
-                state === "listening" && isMicrophoneEnabled
-                  ? "animate-[agent-pulse_1.4s_ease-in-out_infinite] border-emerald-300/35"
-                  : state === "thinking"
-                    ? "animate-[agent-pulse_1.9s_ease-in-out_infinite] border-blue-300/30"
-                    : state === "speaking"
-                      ? "animate-[agent-pulse_1.2s_ease-in-out_infinite] border-white/30"
-                      : "border-white/10"
-              ].join(" ")}
-            />
-
-            <button
-              type="button"
-              onClick={() => void toggleMic()}
-              disabled={!canUseControls}
-              className={[
-                "relative grid size-[172px] place-items-center rounded-full border text-white shadow-[0_28px_90px_rgba(15,23,42,0.6)] transition sm:size-[220px]",
-                isMicrophoneEnabled
-                  ? "border-emerald-200/40 bg-emerald-500/20"
-                  : "border-white/15 bg-white/[0.07] hover:bg-white/[0.1]"
-              ].join(" ")}
-              aria-label={isMicrophoneEnabled ? "Mute microphone" : "Unmute microphone"}
-            >
-              <span className="absolute inset-4 rounded-full bg-white/[0.03]" />
-              <span className="relative flex flex-col items-center gap-4">
-                <span className="grid size-16 place-items-center rounded-full border border-white/15 bg-black/20 backdrop-blur-md">
-                  <span className="h-8 w-5 rounded-full border-2 border-white/90 shadow-[0_12px_0_-8px_rgba(255,255,255,0.9)]" />
-                </span>
-                <span className="text-center text-lg font-semibold tracking-tight sm:text-xl">
-                  {!agentReady ? "Starting..." : isMicrophoneEnabled ? "Mic on" : "Tap to talk"}
-                </span>
-              </span>
-            </button>
-          </div>
-
-          <div className="mt-8 flex w-full max-w-3xl flex-col items-center rounded-[1.75rem] border border-white/10 bg-[#0b1018]/75 p-5 text-center text-white shadow-2xl backdrop-blur-2xl sm:p-7">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-white/35">
-              {readableState}
-            </p>
-            <p className="text-balance text-2xl font-medium leading-tight tracking-[-0.03em] text-white sm:text-3xl">
-              {latestAgentText ?? "Vidya room mein aa rahi hai. Mic allow karo, phir normal tarah se baat karo."}
-            </p>
-            <p className="mt-5 max-w-2xl text-sm leading-6 text-white/45">Room: {roomName}</p>
-
-            {lastMicrophoneError ? (
-              <div className="mt-4 rounded-2xl border border-red-300/30 bg-red-500/15 px-4 py-3 text-sm text-red-100">
-                Microphone error: {lastMicrophoneError.message}
-              </div>
-            ) : null}
-          </div>
-        </motion.div>
-
-        <aside className="flex h-[min(700px,calc(100svh-7rem))] min-h-[520px] flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b1018]/82 text-white shadow-2xl backdrop-blur-2xl lg:h-full lg:min-h-0">
-          <div className="shrink-0 border-b border-white/10 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/35">Text and stream</p>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-white/55">
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                <span className="block text-white/35">Room</span>
-                <span className="block truncate">{roomName}</span>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                <span className="block text-white/35">Agent</span>
-                <span className="block capitalize">{readableState}</span>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                <span className="block text-white/35">Mic</span>
-                <span className="block">{isMicrophoneEnabled ? "on" : "off"}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 [scrollbar-gutter:stable]">
-            <section>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/35">Streaming reply</p>
-              <div className="space-y-2">
-                {transcriptItems.length > 0 ? (
-                  transcriptItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className={[
-                        "rounded-2xl border px-3 py-2 text-sm leading-6",
-                        item.final
-                          ? "border-emerald-300/15 bg-emerald-300/[0.07] text-white/80"
-                          : "border-white/10 bg-white/[0.04] text-white/55"
-                      ].join(" ")}
-                    >
-                      {item.text}
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white/45">
-                    Waiting for Vidya transcript.
-                  </div>
-                )}
-                <div ref={transcriptEndRef} />
-              </div>
-            </section>
-
-            <section>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/35">Typed messages</p>
-              <div className="space-y-2">
-                {chatMessages.length > 0 ? (
-                  chatMessages.slice(-30).map((message) => (
-                    <div
-                      key={`${message.timestamp}-${message.from?.identity ?? "local"}`}
-                      className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm leading-6 text-white/70"
-                    >
-                      <span className="mb-1 block text-xs text-white/35">
-                        {message.from?.isLocal ? "You" : message.from?.identity ?? "Participant"}
-                      </span>
-                      {message.message}
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white/45">
-                    No typed messages yet.
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-            </section>
-          </div>
-
-          <form
-            className="shrink-0 border-t border-white/10 bg-[#0b1018]/95 p-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void sendTextMessage();
-            }}
-          >
-            <div className="flex gap-2">
-              <input
-                value={textInput}
-                onChange={(event) => setTextInput(event.target.value)}
-                placeholder="Type a doubt..."
-                className="min-h-11 min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/20 px-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/25"
-              />
-              <button
-                type="submit"
-                disabled={!canUseControls || isSending || !textInput.trim()}
-                className="rounded-2xl bg-white px-4 text-sm font-semibold text-slate-950 disabled:opacity-50"
-              >
-                Send
-              </button>
-            </div>
-          </form>
-        </aside>
-      </div>
-
-      <footer className="mx-auto hidden w-full max-w-7xl shrink-0 py-1 text-center text-xs text-white/35 lg:block">
-        Realtime audio is handled by LiveKit. Vidya adapts between buddy, coach, and tutor modes.
-      </footer>
-    </section>
-  );
+  return currentConceptId;
 }
 
 export function TutorExperience() {
-  const [session, setSession] = useState<LiveKitSession | null>(null);
-  const [isStarting, setIsStarting] = useState(false);
+  const [conceptId, setConceptId] = useState<ConceptId>("speed-velocity");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    createMessage("assistant", "Hi, main Vidya hoon. Jo bhi topic stuck hai, type karo ya mic se bolo.")
+  ]);
+  const [textInput, setTextInput] = useState("");
+  const [understandingSignal, setUnderstandingSignal] = useState<UnderstandingSignal | undefined>();
+  const [isSending, setIsSending] = useState(false);
+  const [recordingState, setRecordingState] = useState<RecordingState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [preferredRoom, setPreferredRoom] = useState<string | null>(null);
+  const [latestFollowUp, setLatestFollowUp] = useState("Kis topic mein help chahiye: concept, homework question, ya revision?");
+  const [lastInputMode, setLastInputMode] = useState<InputMode>("text");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    setPreferredRoom(window.localStorage.getItem(ROOM_STORAGE_KEY));
+    messagesEndRef.current?.scrollIntoView({ block: "end" });
+  }, [messages.length, isSending, recordingState]);
+
+  useEffect(() => {
+    return () => {
+      mediaRecorderRef.current?.stop();
+      stopStream(mediaStreamRef.current);
+      if (audioRef.current?.src.startsWith("blob:")) {
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+    };
   }, []);
 
-  async function startSession() {
-    setIsStarting(true);
-    setErrorMessage(null);
+  async function speakReply(text: string) {
+    if (audioRef.current?.src.startsWith("blob:")) {
+      URL.revokeObjectURL(audioRef.current.src);
+    }
 
     try {
-      const params = preferredRoom ? `?room=${encodeURIComponent(preferredRoom)}` : "";
-      const response = await fetch(`/api/livekit/token${params}`, { cache: "no-store" });
-      const data = (await response.json()) as LiveKitSession | { error: string };
+      const response = await fetch(`/api/tts?text=${encodeURIComponent(text)}`, { cache: "no-store" });
+      const audioBlob = await response.blob();
 
-      if (!response.ok || "error" in data) {
-        setErrorMessage("error" in data ? data.error : "Could not start LiveKit session.");
+      if (response.ok && audioBlob.size > 0) {
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        await audio.play();
         return;
       }
+    } catch {
+      // Browser speech below keeps voice output available without provider keys.
+    }
 
-      window.localStorage.setItem(ROOM_STORAGE_KEY, data.roomName);
-      setPreferredRoom(data.roomName);
-      setSession(data);
-    } finally {
-      setIsStarting(false);
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "hi-IN";
+      utterance.rate = 0.96;
+      window.speechSynthesis.speak(utterance);
     }
   }
 
+  async function sendTutorMessage(content: string, inputMode: InputMode) {
+    const trimmed = content.trim();
+    if (!trimmed || isSending) {
+      return;
+    }
+
+    const userMessage = createMessage("user", trimmed);
+    const nextMessages = [...messages, userMessage];
+    const resolvedConceptId = inferConceptId(trimmed, conceptId);
+
+    if (resolvedConceptId !== conceptId) {
+      setConceptId(resolvedConceptId);
+    }
+
+    setMessages(nextMessages);
+    setTextInput("");
+    setIsSending(true);
+    setErrorMessage(null);
+    setLastInputMode(inputMode);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          sessionId: SESSION_ID,
+          conceptId: resolvedConceptId,
+          messages: nextMessages.map(({ role, content: messageContent }) => ({
+            role,
+            content: messageContent
+          })),
+          inputMode,
+          understandingSignal
+        })
+      });
+      const data = (await response.json()) as ChatResponse | { error: string };
+
+      if (!response.ok || "error" in data) {
+        setErrorMessage("error" in data ? data.error : "Tutor reply failed.");
+        return;
+      }
+
+      setLatestFollowUp(data.tutorTurn.followUpQuestion);
+      setMessages((current) => [...current, createMessage("assistant", data.tutorTurn.assistantText)]);
+      await speakReply(data.tutorTurn.spokenText);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Could not reach Vidya.");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
+  async function submitText() {
+    await sendTutorMessage(textInput, "text");
+  }
+
+  async function transcribeAndSend(blob: Blob) {
+    setRecordingState("processing");
+    setErrorMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", new File([blob], "vidya-voice.webm", { type: blob.type || "audio/webm" }));
+
+      const response = await fetch("/api/stt", {
+        method: "POST",
+        body: formData
+      });
+      const data = (await response.json()) as SpeechToTextResponse | { error: string };
+
+      if (!response.ok || "error" in data) {
+        setErrorMessage("error" in data ? data.error : "Could not transcribe audio.");
+        return;
+      }
+
+      await sendTutorMessage(data.transcript, "voice");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Voice input failed.");
+    } finally {
+      setRecordingState("idle");
+    }
+  }
+
+  async function startRecording() {
+    if (recordingState !== "idle" || isSending) {
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = getSupportedMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
+      chunksRef.current = [];
+      mediaStreamRef.current = stream;
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        chunksRef.current = [];
+        stopStream(stream);
+        mediaStreamRef.current = null;
+        mediaRecorderRef.current = null;
+        void transcribeAndSend(blob);
+      };
+
+      recorder.start();
+      setRecordingState("recording");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Microphone is not available.");
+      setRecordingState("idle");
+      stopStream(mediaStreamRef.current);
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+  }
+
+  const statusText =
+    recordingState === "recording"
+      ? "Listening"
+      : recordingState === "processing"
+        ? "Transcribing"
+        : isSending
+          ? "Thinking"
+          : lastInputMode === "voice"
+            ? "Voice ready"
+            : "Chat ready";
+
   return (
     <AuroraBackground
-      className="h-svh min-h-svh overflow-hidden bg-[#070a0f] text-slate-950 dark:bg-[#070a0f]"
+      className="min-h-svh overflow-hidden bg-[#070a0f] text-white dark:bg-[#070a0f]"
       showRadialGradient={false}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(91,141,239,0.18),transparent_32%),linear-gradient(180deg,rgba(7,10,15,0.34),rgba(7,10,15,0.92)_70%)]" />
 
-      {session ? (
-        <LiveKitRoom
-          serverUrl={session.serverUrl}
-          token={session.token}
-          connect
-          audio={false}
-          video={false}
-          onError={(error) => setErrorMessage(error.message)}
-          onDisconnected={() => setSession(null)}
-          className="relative z-10 min-h-screen w-full"
-        >
-          <RoomAudioRenderer />
-          <LiveVoiceSurface roomName={session.roomName} onLeave={() => setSession(null)} />
-        </LiveKitRoom>
-      ) : (
-        <section className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-5 text-center text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#0b1018]/75 p-7 shadow-2xl backdrop-blur-2xl"
-          >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-white/35">Vidya AI Live</p>
-            <h1 className="text-balance text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">
-              Talk naturally. Vidya adapts in realtime.
-            </h1>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/55">
-              This mode uses LiveKit rooms plus a backend Python agent worker. Chat casually, ask for study help, or
-              switch into tutoring whenever you need it.
-            </p>
-            <button
-              type="button"
-              onClick={() => void startSession()}
-              disabled={isStarting}
-              className="mt-8 rounded-2xl bg-white px-6 py-3 font-semibold text-slate-950 shadow-lg disabled:opacity-60"
-            >
-              {isStarting ? "Starting..." : "Start live session"}
-            </button>
+      <section className="relative z-10 mx-auto flex min-h-svh w-full max-w-5xl flex-col px-4 py-4 sm:px-5">
+        <header className="flex shrink-0 items-center justify-between gap-3 py-2">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-lg border border-white/10 bg-white/[0.06] text-sm font-semibold">
+              V
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Vidya AI</p>
+              <p className="text-xs text-white/45">{statusText}</p>
+            </div>
+          </div>
 
-            {errorMessage ? (
-              <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
-                {errorMessage}
+          <div className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-white/55">
+            Buddy tutor
+          </div>
+        </header>
+
+        <main className="my-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0b1018]/86 shadow-2xl backdrop-blur-2xl">
+          <div className="border-b border-white/10 px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/35">Voice and chat</p>
+            <p className="mt-2 text-sm leading-6 text-white/58">{latestFollowUp}</p>
+          </div>
+
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={[
+                  "max-w-[88%] rounded-lg border px-4 py-3 text-sm leading-6",
+                  message.role === "user"
+                    ? "ml-auto border-emerald-300/20 bg-emerald-300/[0.1] text-white"
+                    : "border-white/10 bg-white/[0.05] text-white/80"
+                ].join(" ")}
+              >
+                <span className="mb-1 block text-xs font-semibold text-white/35">
+                  {message.role === "user" ? "You" : "Vidya"}
+                </span>
+                {message.content}
+              </motion.div>
+            ))}
+            {isSending || recordingState === "processing" ? (
+              <div className="max-w-[88%] rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/48">
+                {recordingState === "processing" ? "Converting voice..." : "Vidya is thinking..."}
               </div>
             ) : null}
-          </motion.div>
-        </section>
-      )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {errorMessage ? (
+            <div className="mx-3 rounded-lg border border-amber-300/30 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
+              {errorMessage}
+            </div>
+          ) : null}
+
+          <div className="border-t border-white/10 bg-[#0b1018]/95 p-3">
+            <div className="mb-3 flex flex-wrap gap-2">
+              {[
+                ["understood", "Got it"],
+                ["still-confused", "Still confused"],
+                ["curious", "Go deeper"]
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setUnderstandingSignal(value as UnderstandingSignal)}
+                  className={[
+                    "rounded-lg border px-3 py-2 text-xs font-semibold transition",
+                    understandingSignal === value
+                      ? "border-white bg-white text-slate-950"
+                      : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.08]"
+                  ].join(" ")}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <form
+              className="flex gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void submitText();
+              }}
+            >
+              <button
+                type="button"
+                onClick={recordingState === "recording" ? stopRecording : () => void startRecording()}
+                disabled={recordingState === "processing" || isSending}
+                className={[
+                  "grid size-12 shrink-0 place-items-center rounded-lg border text-sm font-semibold transition",
+                  recordingState === "recording"
+                    ? "border-red-300/40 bg-red-400/20 text-red-100"
+                    : "border-white/10 bg-white/[0.06] text-white hover:bg-white/[0.1]"
+                ].join(" ")}
+                aria-label={recordingState === "recording" ? "Stop recording" : "Start recording"}
+              >
+                {recordingState === "recording" ? "Stop" : "Mic"}
+              </button>
+              <input
+                value={textInput}
+                onChange={(event) => setTextInput(event.target.value)}
+                placeholder="Type your doubt..."
+                className="min-h-12 min-w-0 flex-1 rounded-lg border border-white/10 bg-black/25 px-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/25"
+              />
+              <button
+                type="submit"
+                disabled={isSending || recordingState !== "idle" || !textInput.trim()}
+                className="rounded-lg bg-white px-5 text-sm font-semibold text-slate-950 disabled:opacity-50"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+        </main>
+      </section>
     </AuroraBackground>
   );
 }

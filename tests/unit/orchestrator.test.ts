@@ -25,4 +25,16 @@ describe("generateTutorTurn", () => {
 
     expect(result.tutorTurn.fallbackMode).toBe("direct");
   });
+
+  it("does not force Motion content for a general study question", async () => {
+    const result = await generateTutorTurn({
+      sessionId: "s3",
+      conceptId: "speed-velocity",
+      inputMode: "text",
+      messages: [{ role: "user", content: "photosynthesis simple way mein samjhao" }]
+    });
+
+    expect(result.tutorTurn.visualId).toBe("general-tutor");
+    expect(result.tutorTurn.citations).toEqual([]);
+  });
 });

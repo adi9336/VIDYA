@@ -1,23 +1,24 @@
 # Working Context
 
-Last updated: 2026-04-23
+Last updated: 2026-04-25
 
 ## Current Goal
 
-Set up a clean Codex-friendly repository structure for a new project.
+Build Vidya AI as a realtime Hinglish senior buddy that can switch into tutoring only when the student asks for help.
 
 ## Current Truth
 
-- The repository is in bootstrap stage.
-- The concrete product scope is not defined yet.
+- The repository now has a Next.js app shell and a LiveKit realtime voice path.
+- The product identity is not Motion-only. Vidya should behave like a cool, helpful senior companion by default.
+- Motion content exists as the first specialist pack and should only activate for Motion-related questions.
 - Structure should support iterative building without heavy rewrites.
 
 ## Immediate Next Actions
 
-1. Define the product in `docs/PRD.md`.
-2. Choose stack and deployment shape in `docs/ARCHITECTURE.md`.
-3. Add the first feature under `src/features/`.
-4. Add matching tests under `tests/`.
+1. Keep prompts, docs, and UI aligned around senior-buddy-first behavior.
+2. Stabilize the LiveKit voice session and typed chat path.
+3. Add intent routing tests for buddy, tutor, study coach, and Motion specialist behavior.
+4. Expand specialist packs only after the core companion interaction feels natural.
 
 ## Notes
 

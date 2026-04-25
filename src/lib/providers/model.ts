@@ -12,6 +12,17 @@ export interface ModelPromptInput {
 
 function buildMockTutorCopy(input: ModelPromptInput): string {
   const lastUserMessage = input.latestUserMessage || [...input.messages].reverse().find((message) => message.role === "user")?.content;
+
+  if (input.lessonSummary.startsWith("GENERAL_TUTORING_CONTEXT")) {
+    if (/definition|direct|seedha|bas bata|sidha/i.test(lastUserMessage ?? "")) {
+      return "Seedha bolun toh, pehle exact meaning pakadte hain. Isko ek simple daily-life example se jod do, toh concept easy ho jaata hai.";
+    }
+
+    return lastUserMessage
+      ? `Samjha, tum pooch rahe ho: "${lastUserMessage}". Isko ek chhote example se pakadte hain, phir step by step clear karte hain.`
+      : "Bolo, kis topic mein help chahiye? Main simple example se samjha dunga.";
+  }
+
   return [
     /definition|direct|seedha|bas bata|sidha/i.test(lastUserMessage ?? "")
       ? "Seedha bata deta hoon."
@@ -30,7 +41,7 @@ export async function generateTutorCopy(input: ModelPromptInput): Promise<string
   }
 
   if (!hasOpenAIConfig()) {
-    throw new Error("MODEL_PROVIDER is set to openai but OPENAI_API_KEY is missing.");
+    return buildMockTutorCopy(input);
   }
 
   const client = getOpenAIClient();

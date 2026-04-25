@@ -32,6 +32,24 @@ function buildFollowUpQuestion(conceptId: ConceptId, fallbackMode: TutorTurn["fa
   return lessonPack.tutorPrompts.find((prompt) => prompt.intent === "probe")?.prompt ?? lessonPack.tutorPrompts[0].prompt;
 }
 
+function isMotionRequest(message: string): boolean {
+  return /\b(motion|distance|displacement|speed|velocity|acceleration|accelerate|deceleration|uniform|non-uniform|graph|direction|speedometer)\b/i.test(
+    message
+  );
+}
+
+function buildGeneralFollowUp(fallbackMode: TutorTurn["fallbackMode"]): string {
+  if (fallbackMode === "slow-down") {
+    return "Kaunsa part confusing laga: word ka meaning, formula, ya example?";
+  }
+
+  if (fallbackMode === "direct") {
+    return "Ab isko ek chhote example se connect karein?";
+  }
+
+  return "Is topic ka kaunsa part samajhna hai: meaning, example, ya question solving?";
+}
+
 function buildCoachingGoal(conceptId: ConceptId, latestUserMessage: string, fallbackMode: TutorTurn["fallbackMode"]): string {
   const question = latestUserMessage.toLowerCase();
 
@@ -68,6 +86,36 @@ export async function generateTutorTurn(request: ChatRequest): Promise<ChatRespo
   const lessonPack = getMotionConceptPack(request.conceptId);
   const fallbackMode = buildFallbackMode(request);
   const latestUserMessage = [...request.messages].reverse().find((message) => message.role === "user")?.content ?? "";
+
+  if (!isMotionRequest(latestUserMessage)) {
+    const assistantText = await generateTutorCopy({
+      systemPrompt,
+      messages: request.messages,
+      lessonSummary:
+        "GENERAL_TUTORING_CONTEXT: The student may ask about any school topic. Do not force Physics or Motion. Explain like a friendly senior study buddy in simple Hinglish.",
+      latestUserMessage,
+      coachingGoal:
+        fallbackMode === "slow-down"
+          ? "The student is confused. Slow down, use a smaller everyday example, and avoid making them feel judged."
+          : fallbackMode === "direct"
+            ? "The student asked directly. Give the direct answer first, then one tiny example."
+            : "Teach the student's actual topic like a buddy. Start simple, use one familiar analogy, and keep it conversational."
+    });
+
+    return {
+      conceptId: request.conceptId,
+      tutorTurn: {
+        assistantText,
+        spokenText: assistantText,
+        followUpQuestion: buildGeneralFollowUp(fallbackMode),
+        understandingCheck: "Apne words mein ek line mein batao, tumhe kya samajh aaya?",
+        visualId: "general-tutor",
+        citations: [],
+        fallbackMode
+      }
+    };
+  }
+
   const explanationLead =
     fallbackMode === "slow-down"
       ? `${lessonPack.everydayHook} ${lessonPack.analogy.setup}`

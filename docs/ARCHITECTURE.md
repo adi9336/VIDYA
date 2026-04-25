@@ -13,17 +13,19 @@ Source of truth: [VIDYA_AI_MVP_Blueprint.md](C:\Users\ADITYA GUPTA\VIDYA_AI\docs
 
 ## Application Shape
 
-- A student-facing tutoring app centered on one conversation at a time
-- The product experience is driven primarily by prompt design and tutoring flow
-- The first implementation should optimize for one strong concept journey rather than broad subject coverage
+- A student-facing senior-buddy app centered on one realtime conversation at a time
+- The product experience is driven primarily by prompt design, intent routing, and voice interaction quality
+- The first implementation should optimize for natural mode switching: buddy, tutor, coach, clarifier, safety, and specialist packs
+- Motion is the first specialist content pack, not the default conversation mode
 
 ## Data Flow
 
-- Student enters a question by text or voice
+- Student enters a message by text or voice
+- Intent routing decides whether the turn is casual buddy talk, tutoring, study coaching, clarification, safety handling, or a specialist subject turn
 - Backend converts voice to text when needed
-- Conversation service applies the tutoring prompt and returns the next guided response
-- UI displays the explanation, follow-up question, and any relevant illustration
-- Visual layer can surface a base illustration or a modified version depending on the current concept state
+- Conversation service applies the senior-buddy system prompt and the selected mode instructions
+- UI displays the reply, realtime transcript, and any relevant teaching artifact
+- Visual layer only surfaces specialist illustrations when a learning question needs them
 
 ## Deployment
 
