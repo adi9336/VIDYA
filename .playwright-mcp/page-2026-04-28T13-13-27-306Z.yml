@@ -1,0 +1,40 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: V
+          - generic [ref=e9]:
+            - paragraph [ref=e10]: Vidya AI
+            - paragraph [ref=e11]: Thinking
+        - generic [ref=e12]: Buddy tutor
+      - main [ref=e13]:
+        - generic [ref=e14]:
+          - paragraph [ref=e15]: Voice and chat
+          - paragraph [ref=e16]: "Is topic ka kaunsa part samajhna hai: meaning, example, ya question solving?"
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: Vidya
+            - text: Hi, main Vidya hoon. Jo bhi topic stuck hai, type karo ya mic se bolo.
+          - generic [ref=e39]:
+            - generic [ref=e40]: You
+            - text: explain cell
+          - generic [ref=e41]:
+            - generic [ref=e42]: Vidya
+            - text: Soch, ghar ke andar har kamra apna ek kaam karta hai, jaise cell bhi body ka chhota ghar hota hai jahan har part apna kaam karta hai. Cell mein nucleus hota hai jo bade boss ki tarah instructions deta hai, aur cytoplasm hota hai jahan sab kuch chal raha hota hai. Yeh sab tiny units milke body chalate hain.
+          - generic [ref=e43]:
+            - generic [ref=e44]: You
+            - text: speed aur velocity mein farq kya hai?
+          - generic [ref=e45]: Vidya is thinking...
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - button "Got it" [ref=e22] [cursor=pointer]
+            - button "Still confused" [ref=e23] [cursor=pointer]
+            - button "Go deeper" [ref=e24] [cursor=pointer]
+          - generic [ref=e25]:
+            - button "Start recording" [disabled] [ref=e26]: Mic
+            - textbox "Type your doubt..." [active] [ref=e27]
+            - button "Send" [disabled] [ref=e28]
+  - button "Open Next.js Dev Tools" [ref=e34] [cursor=pointer]:
+    - img [ref=e35]
+  - alert [ref=e38]

@@ -15,7 +15,8 @@ The linked repo at `C:\Users\ADITYA GUPTA\agents-assignment` is the LiveKit Agen
 - `src/app/api/livekit/token/route.ts` creates short-lived LiveKit room tokens server-side.
 - `src/features/tutor/client/TutorExperience.tsx` connects the browser to LiveKit using `@livekit/components-react`.
 - `agents/livekit/vidya_agent.py` runs a Python LiveKit agent participant that listens and replies in realtime.
-- The worker prompt routes behavior between buddy mode, tutor mode, study coach mode, clarifier mode, safety mode, and a Motion specialist mode.
+- `agents/livekit/vidya/` contains the typed supervisor, router, prompts, schemas, and event emitters.
+- The worker routes every completed turn into buddy mode, tutor mode, study coach mode, clarifier mode, safety mode, or Motion specialist mode before generating speech.
 
 ## Agent Behavior
 
@@ -29,6 +30,27 @@ The agent switches modes based on the student's intent:
 - Clarifier mode: one short question when the request is unclear.
 - Safety mode: careful support for risky topics.
 - Motion specialist: only when the student asks about Motion concepts.
+
+## Supervisor Architecture
+
+The LiveKit worker uses a typed supervisor workflow instead of a single giant prompt.
+
+- Router model: `VIDYA_ROUTER_MODEL`, default `gpt-5-mini`.
+- Reply model: `VIDYA_REPLY_MODEL`, default `gpt-5.2`.
+- Router output is validated as a `TurnPlan`.
+- If routing fails or times out, deterministic fallback rules choose a safe mode.
+- The active plan is injected into the current LiveKit chat context for that response only.
+- The worker emits `vidya.agent_state` and `vidya.visual_request` text-stream events.
+
+## GPT Visualizations
+
+The standard chat path can generate Motion-only visual support with OpenAI image models.
+
+- Enable with `VISUAL_GENERATION_PROVIDER=openai` and `OPENAI_API_KEY`.
+- Default image model is `gpt-image-1.5`.
+- Generated images are cached under `public/generated/visuals/` by prompt hash.
+- Casual buddy and study-coach turns skip visualization.
+- If image generation is unavailable or fails, the app falls back to the existing static Motion SVG.
 
 ## Required Environment
 

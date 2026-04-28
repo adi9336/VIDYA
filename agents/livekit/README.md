@@ -45,7 +45,10 @@ Then open the Next.js app and click `Start live session`.
 
 - The Next.js frontend only joins a LiveKit room.
 - The Python worker joins the same room as the agent participant and handles realtime listening, thinking, and speaking.
-- The current worker uses Deepgram STT, OpenAI LLM, Sarvam TTS speaker `shubh` for an Indian companion voice, Silero VAD, and multilingual turn detection.
+- The current worker uses Deepgram STT, OpenAI LLMs, Sarvam TTS speaker `shubh` for an Indian companion voice, Silero VAD, and multilingual turn detection.
+- A typed Vidya supervisor routes every completed turn before the spoken response. It creates a `TurnPlan` for buddy, tutor, study coach, clarifier, safety, or Motion specialist mode.
+- `VIDYA_ROUTER_MODEL` controls the routing/planning model. `VIDYA_REPLY_MODEL` controls the final spoken response model.
+- The worker emits `vidya.agent_state` and `vidya.visual_request` text-stream events so the browser can reflect mode and Motion visual intent.
 - If `SARVAM_API_KEY` is missing, the worker falls back to OpenAI TTS voice `onyx`.
 - LangChain is installed for the next RAG/tooling step, but the worker intentionally keeps the first voice path simple.
 - If you want manual push-to-talk RPC later, use `examples/voice_agents/push_to_talk.py` from the linked repo as the next reference.

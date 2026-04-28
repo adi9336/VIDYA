@@ -1,4 +1,5 @@
 python-dotenv>=1.0.1
+openai>=1.99.0
 livekit-agents[deepgram,openai,sarvam,silero,turn-detector]~=1.4
 langchain>=0.3.0
 langchain-openai>=0.3.0

@@ -2,7 +2,7 @@
 
 Vidya AI is a Hinglish-first voice and chat senior buddy that can become a tutor when the student asks for help.
 
-The repo now includes a working `Next.js` app shell, typed API routes, browser voice input, spoken replies, an adaptive conversation orchestrator, Motion specialist content packs for relevant questions, and an offline `autoresearch`-style research loop for improving prompts and learning flows.
+The repo now includes a working `Next.js` app shell, typed API routes, browser voice input, spoken replies, an adaptive conversation orchestrator, Motion specialist content packs for relevant questions, GPT-generated Motion visuals with static fallback, and an offline `autoresearch`-style research loop for improving prompts and learning flows.
 
 ## Current Product Docs
 
@@ -41,6 +41,8 @@ LIVEKIT_URL=
 LIVEKIT_API_KEY=
 LIVEKIT_API_SECRET=
 OPENAI_API_KEY=
+VISUAL_GENERATION_PROVIDER=openai
+OPENAI_IMAGE_MODEL=gpt-image-1.5
 ```
 
 ## Core Files

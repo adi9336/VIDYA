@@ -8,11 +8,12 @@ describe("generateTutorTurn", () => {
       conceptId: "speed-velocity",
       inputMode: "text",
       understandingSignal: "still-confused",
-      messages: [{ role: "user", content: "Mujhe samajh nahi aaya." }]
+      messages: [{ role: "user", content: "Velocity mujhe samajh nahi aaya." }]
     });
 
     expect(result.tutorTurn.fallbackMode).toBe("slow-down");
     expect(result.tutorTurn.visualId).toBeTruthy();
+    expect(result.tutorTurn.visual.kind).toBe("static");
   });
 
   it("returns a direct response when the student asks for a direct definition", async () => {
@@ -35,6 +36,29 @@ describe("generateTutorTurn", () => {
     });
 
     expect(result.tutorTurn.visualId).toBe("general-tutor");
+    expect(result.tutorTurn.visual.kind).toBe("none");
+    expect(result.tutorTurn.visual.status).toBe("skipped");
     expect(result.tutorTurn.citations).toEqual([]);
+  });
+
+  it("keeps Motion visuals for conversational follow-ups after a Motion turn", async () => {
+    const result = await generateTutorTurn({
+      sessionId: "s4",
+      conceptId: "speed-velocity",
+      inputMode: "text",
+      messages: [
+        { role: "user", content: "speed aur velocity mein farq kya hai?" },
+        {
+          role: "assistant",
+          content:
+            "Speed sirf fastness batata hai, velocity fastness ke saath direction bhi batata hai."
+        },
+        { role: "user", content: "accha fir dono ek side ho to vlosity same hogi?" }
+      ]
+    });
+
+    expect(result.tutorTurn.visualId).toBe("speed-velocity");
+    expect(result.tutorTurn.visual.kind).not.toBe("none");
+    expect(result.tutorTurn.citations).toContain("Vidya AI curated motion pack");
   });
 });

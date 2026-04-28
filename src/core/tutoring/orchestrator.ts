@@ -2,6 +2,7 @@ import { motionConcepts } from "@/core/concepts/motion";
 import { getMotionConceptPack } from "@/core/content/motion";
 import { systemPrompt } from "@/core/prompts/system";
 import { getVisualHintForConcept } from "@/features/visuals";
+import { generateMotionVisual, skippedVisual } from "@/features/visuals/server/generated-visuals";
 import { generateTutorCopy } from "@/lib/providers/model";
 import type { ChatRequest, ChatResponse } from "@/types/api";
 import type { ConceptId, TutorTurn } from "@/types/session";
@@ -32,10 +33,29 @@ function buildFollowUpQuestion(conceptId: ConceptId, fallbackMode: TutorTurn["fa
   return lessonPack.tutorPrompts.find((prompt) => prompt.intent === "probe")?.prompt ?? lessonPack.tutorPrompts[0].prompt;
 }
 
+const motionTermPattern =
+  /\b(motion|distance|displacement|speed|velocity|velosity|vlosity|acceleration|accelerate|deceleration|uniform|non-uniform|graph|direction|speedometer)\b/i;
+
+const motionFollowUpPattern =
+  /\b(dono|same|alag|different|opposite|side|taraf|kidhar|kahan|fast|slow|tez|direction|equal|change|turn)\b/i;
+
 function isMotionRequest(message: string): boolean {
-  return /\b(motion|distance|displacement|speed|velocity|acceleration|accelerate|deceleration|uniform|non-uniform|graph|direction|speedometer)\b/i.test(
+  return motionTermPattern.test(
     message
   );
+}
+
+function isMotionFollowUp(request: ChatRequest, latestUserMessage: string): boolean {
+  if (!motionFollowUpPattern.test(latestUserMessage)) {
+    return false;
+  }
+
+  const previousMessages = request.messages.slice(0, -1).slice(-4);
+  return previousMessages.some((message) => isMotionRequest(message.content));
+}
+
+function shouldUseMotionSpecialist(request: ChatRequest, latestUserMessage: string): boolean {
+  return isMotionRequest(latestUserMessage) || isMotionFollowUp(request, latestUserMessage);
 }
 
 function buildGeneralFollowUp(fallbackMode: TutorTurn["fallbackMode"]): string {
@@ -87,7 +107,7 @@ export async function generateTutorTurn(request: ChatRequest): Promise<ChatRespo
   const fallbackMode = buildFallbackMode(request);
   const latestUserMessage = [...request.messages].reverse().find((message) => message.role === "user")?.content ?? "";
 
-  if (!isMotionRequest(latestUserMessage)) {
+  if (!shouldUseMotionSpecialist(request, latestUserMessage)) {
     const assistantText = await generateTutorCopy({
       systemPrompt,
       messages: request.messages,
@@ -110,6 +130,7 @@ export async function generateTutorTurn(request: ChatRequest): Promise<ChatRespo
         followUpQuestion: buildGeneralFollowUp(fallbackMode),
         understandingCheck: "Apne words mein ek line mein batao, tumhe kya samajh aaya?",
         visualId: "general-tutor",
+        visual: skippedVisual(),
         citations: [],
         fallbackMode
       }
@@ -130,6 +151,11 @@ export async function generateTutorTurn(request: ChatRequest): Promise<ChatRespo
     latestUserMessage,
     coachingGoal: buildCoachingGoal(request.conceptId, latestUserMessage, fallbackMode)
   });
+  const visual = await generateMotionVisual({
+    conceptId: request.conceptId,
+    latestUserMessage,
+    assistantText
+  });
 
   return {
     conceptId: request.conceptId,
@@ -139,6 +165,7 @@ export async function generateTutorTurn(request: ChatRequest): Promise<ChatRespo
       followUpQuestion: buildFollowUpQuestion(request.conceptId, fallbackMode),
       understandingCheck: lessonPack.checkpoints[0]?.question ?? "Ab tum isko apne words me batao.",
       visualId: getVisualHintForConcept(request.conceptId).visualId,
+      visual,
       citations: ["NCERT Class 9 Science, Motion", "Vidya AI curated motion pack"],
       fallbackMode
     }

@@ -24,7 +24,7 @@ Make students feel like they have a smart senior buddy available: someone they c
 - Use Motion specialist content only when the student asks Motion-related questions
 - Deliver voice and chat tutoring with guided conversation
 - Support a mobile-first student experience
-- Include base concept illustrations and room for adaptive visuals
+- Include GPT-generated Motion visuals with static fallback when a Motion learning question needs visual support
 
 ## Non-Goals
 

@@ -13,13 +13,11 @@
   <path d="M188 153C211 143 235 140 260 154" stroke="#F97316" stroke-width="8" stroke-linecap="round" stroke-dasharray="10 12"/>
   <circle cx="260" cy="154" r="14" fill="#0F172A"/>
   <text x="282" y="160" fill="#0F172A" font-family="Verdana, sans-serif" font-size="18" font-weight="700">Start</text>
-  <path d="M260 154L260 154" stroke="#2563EB" stroke-width="10" stroke-linecap="round"/>
   <path d="M470 266H635" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
   <path d="M620 252L648 266L620 280" fill="none" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="468" y="236" fill="#1D4ED8" font-family="Verdana, sans-serif" font-size="22" font-weight="700">Displacement</text>
   <text x="470" y="300" fill="#475569" font-family="Verdana, sans-serif" font-size="18">Shortest change from</text>
   <text x="470" y="325" fill="#475569" font-family="Verdana, sans-serif" font-size="18">start to finish</text>
-  <path d="M260 154L260 154" stroke="#0F172A" stroke-width="8" stroke-linecap="round"/>
   <text x="72" y="406" fill="#C2410C" font-family="Verdana, sans-serif" font-size="20" font-weight="700">Dashed orange loop = distance covered</text>
   <text x="72" y="434" fill="#1D4ED8" font-family="Verdana, sans-serif" font-size="20" font-weight="700">Blue straight arrow = displacement</text>
 </svg>

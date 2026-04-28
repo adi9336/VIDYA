@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import type { ChatResponse, SpeechToTextResponse } from "@/types/api";
-import type { ConceptId, Message, UnderstandingSignal } from "@/types/session";
+import type { ConceptId, Message, TutorVisual, UnderstandingSignal } from "@/types/session";
 
 interface ChatMessage extends Message {
   id: string;
@@ -39,7 +39,7 @@ function inferConceptId(message: string, currentConceptId: ConceptId): ConceptId
     return "acceleration";
   }
 
-  if (/\b(speed|velocity|fast|slow|direction|speedometer)\b/.test(normalized)) {
+  if (/\b(speed|velocity|velosity|vlosity|fast|slow|direction|speedometer)\b/.test(normalized)) {
     return "speed-velocity";
   }
 
@@ -61,6 +61,7 @@ export function TutorExperience() {
   const [recordingState, setRecordingState] = useState<RecordingState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [latestFollowUp, setLatestFollowUp] = useState("Kis topic mein help chahiye: concept, homework question, ya revision?");
+  const [latestVisual, setLatestVisual] = useState<TutorVisual | null>(null);
   const [lastInputMode, setLastInputMode] = useState<InputMode>("text");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -156,6 +157,7 @@ export function TutorExperience() {
       }
 
       setLatestFollowUp(data.tutorTurn.followUpQuestion);
+      setLatestVisual(data.tutorTurn.visual);
       setMessages((current) => [...current, createMessage("assistant", data.tutorTurn.assistantText)]);
       await speakReply(data.tutorTurn.spokenText);
     } catch (error) {
@@ -311,6 +313,34 @@ export function TutorExperience() {
           {errorMessage ? (
             <div className="mx-3 rounded-lg border border-amber-300/30 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
               {errorMessage}
+            </div>
+          ) : null}
+
+          {latestVisual && latestVisual.kind !== "none" && latestVisual.url ? (
+            <div className="border-t border-white/10 bg-white/[0.025] p-3">
+              <div className="grid gap-3 rounded-lg border border-white/10 bg-black/20 p-3 sm:grid-cols-[220px_minmax(0,1fr)]">
+                <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.04]">
+                  <img
+                    src={latestVisual.url}
+                    alt={latestVisual.altText}
+                    className="aspect-square h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex min-w-0 flex-col justify-center">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/35">
+                    {latestVisual.kind === "generated" ? "GPT visual" : "Static visual"}
+                  </p>
+                  <h2 className="mt-2 text-lg font-semibold leading-tight text-white">
+                    {latestVisual.title ?? "Visual explanation"}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-white/55">{latestVisual.altText}</p>
+                  {latestVisual.status !== "ready" ? (
+                    <p className="mt-2 text-xs text-amber-200/75">
+                      Using fallback visual: {latestVisual.errorMessage ?? "generation was skipped."}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </div>
           ) : null}
 
