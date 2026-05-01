@@ -14,7 +14,7 @@ export const env = {
   openAiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1.5",
   openAiImageSize: process.env.OPENAI_IMAGE_SIZE ?? "1024x1024",
   openAiImageQuality: process.env.OPENAI_IMAGE_QUALITY ?? "medium",
-  openAiImageTimeoutMs: Number(process.env.OPENAI_IMAGE_TIMEOUT_MS ?? "6000"),
+  openAiImageTimeoutMs: Number(process.env.OPENAI_IMAGE_TIMEOUT_MS ?? "60000"),
   openAiTranscribeModel: process.env.OPENAI_TRANSCRIBE_MODEL ?? "gpt-4o-mini-transcribe",
   openAiTtsModel: process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts",
   openAiTtsVoice: process.env.OPENAI_TTS_VOICE ?? "cedar",

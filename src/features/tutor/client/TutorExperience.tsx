@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { VisualPanel } from "@/features/visuals/VisualPanel";
 import type { ChatResponse, SpeechToTextResponse } from "@/types/api";
 import type { ConceptId, Message, TutorVisual, UnderstandingSignal } from "@/types/session";
 
@@ -62,6 +63,8 @@ export function TutorExperience() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [latestFollowUp, setLatestFollowUp] = useState("Kis topic mein help chahiye: concept, homework question, ya revision?");
   const [latestVisual, setLatestVisual] = useState<TutorVisual | null>(null);
+  const [latestVisualAssistantText, setLatestVisualAssistantText] = useState("");
+  const [isVisualPanelOpen, setIsVisualPanelOpen] = useState(false);
   const [lastInputMode, setLastInputMode] = useState<InputMode>("text");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -158,6 +161,8 @@ export function TutorExperience() {
 
       setLatestFollowUp(data.tutorTurn.followUpQuestion);
       setLatestVisual(data.tutorTurn.visual);
+      setLatestVisualAssistantText(data.tutorTurn.assistantText);
+      setIsVisualPanelOpen(data.tutorTurn.visual.kind !== "none" && Boolean(data.tutorTurn.visual.url));
       setMessages((current) => [...current, createMessage("assistant", data.tutorTurn.assistantText)]);
       await speakReply(data.tutorTurn.spokenText);
     } catch (error) {
@@ -260,7 +265,7 @@ export function TutorExperience() {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(91,141,239,0.18),transparent_32%),linear-gradient(180deg,rgba(7,10,15,0.34),rgba(7,10,15,0.92)_70%)]" />
 
-      <section className="relative z-10 mx-auto flex min-h-svh w-full max-w-5xl flex-col px-4 py-4 sm:px-5">
+      <section className="relative z-10 mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-4 sm:px-5">
         <header className="flex shrink-0 items-center justify-between gap-3 py-2">
           <div className="flex items-center gap-3">
             <div className="grid size-10 place-items-center rounded-lg border border-white/10 bg-white/[0.06] text-sm font-semibold">
@@ -277,133 +282,121 @@ export function TutorExperience() {
           </div>
         </header>
 
-        <main className="my-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0b1018]/86 shadow-2xl backdrop-blur-2xl">
-          <div className="border-b border-white/10 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/35">Voice and chat</p>
-            <p className="mt-2 text-sm leading-6 text-white/58">{latestFollowUp}</p>
-          </div>
-
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={[
-                  "max-w-[88%] rounded-lg border px-4 py-3 text-sm leading-6",
-                  message.role === "user"
-                    ? "ml-auto border-emerald-300/20 bg-emerald-300/[0.1] text-white"
-                    : "border-white/10 bg-white/[0.05] text-white/80"
-                ].join(" ")}
-              >
-                <span className="mb-1 block text-xs font-semibold text-white/35">
-                  {message.role === "user" ? "You" : "Vidya"}
-                </span>
-                {message.content}
-              </motion.div>
-            ))}
-            {isSending || recordingState === "processing" ? (
-              <div className="max-w-[88%] rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/48">
-                {recordingState === "processing" ? "Converting voice..." : "Vidya is thinking..."}
-              </div>
-            ) : null}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {errorMessage ? (
-            <div className="mx-3 rounded-lg border border-amber-300/30 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
-              {errorMessage}
+        <div
+          className={[
+            "my-4 grid min-h-0 flex-1 gap-4",
+            isVisualPanelOpen && latestVisual?.kind !== "none"
+              ? "lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
+              : "lg:grid-cols-1"
+          ].join(" ")}
+        >
+          <main className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0b1018]/86 shadow-2xl backdrop-blur-2xl">
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/35">Voice and chat</p>
+              <p className="mt-2 text-sm leading-6 text-white/58">{latestFollowUp}</p>
             </div>
-          ) : null}
 
-          {latestVisual && latestVisual.kind !== "none" && latestVisual.url ? (
-            <div className="border-t border-white/10 bg-white/[0.025] p-3">
-              <div className="grid gap-3 rounded-lg border border-white/10 bg-black/20 p-3 sm:grid-cols-[220px_minmax(0,1fr)]">
-                <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.04]">
-                  <img
-                    src={latestVisual.url}
-                    alt={latestVisual.altText}
-                    className="aspect-square h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex min-w-0 flex-col justify-center">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/35">
-                    {latestVisual.kind === "generated" ? "GPT visual" : "Static visual"}
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold leading-tight text-white">
-                    {latestVisual.title ?? "Visual explanation"}
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-white/55">{latestVisual.altText}</p>
-                  {latestVisual.status !== "ready" ? (
-                    <p className="mt-2 text-xs text-amber-200/75">
-                      Using fallback visual: {latestVisual.errorMessage ?? "generation was skipped."}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          <div className="border-t border-white/10 bg-[#0b1018]/95 p-3">
-            <div className="mb-3 flex flex-wrap gap-2">
-              {[
-                ["understood", "Got it"],
-                ["still-confused", "Still confused"],
-                ["curious", "Go deeper"]
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setUnderstandingSignal(value as UnderstandingSignal)}
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className={[
-                    "rounded-lg border px-3 py-2 text-xs font-semibold transition",
-                    understandingSignal === value
-                      ? "border-white bg-white text-slate-950"
-                      : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.08]"
+                    "max-w-[88%] rounded-lg border px-4 py-3 text-sm leading-6",
+                    message.role === "user"
+                      ? "ml-auto border-emerald-300/20 bg-emerald-300/[0.1] text-white"
+                      : "border-white/10 bg-white/[0.05] text-white/80"
                   ].join(" ")}
                 >
-                  {label}
-                </button>
+                  <span className="mb-1 block text-xs font-semibold text-white/35">
+                    {message.role === "user" ? "You" : "Vidya"}
+                  </span>
+                  {message.content}
+                </motion.div>
               ))}
+              {isSending || recordingState === "processing" ? (
+                <div className="max-w-[88%] rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/48">
+                  {recordingState === "processing" ? "Converting voice..." : "Vidya is thinking..."}
+                </div>
+              ) : null}
+              <div ref={messagesEndRef} />
             </div>
 
-            <form
-              className="flex gap-2"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void submitText();
-              }}
-            >
-              <button
-                type="button"
-                onClick={recordingState === "recording" ? stopRecording : () => void startRecording()}
-                disabled={recordingState === "processing" || isSending}
-                className={[
-                  "grid size-12 shrink-0 place-items-center rounded-lg border text-sm font-semibold transition",
-                  recordingState === "recording"
-                    ? "border-red-300/40 bg-red-400/20 text-red-100"
-                    : "border-white/10 bg-white/[0.06] text-white hover:bg-white/[0.1]"
-                ].join(" ")}
-                aria-label={recordingState === "recording" ? "Stop recording" : "Start recording"}
+            {errorMessage ? (
+              <div className="mx-3 rounded-lg border border-amber-300/30 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
+                {errorMessage}
+              </div>
+            ) : null}
+
+            <div className="border-t border-white/10 bg-[#0b1018]/95 p-3">
+              <div className="mb-3 flex flex-wrap gap-2">
+                {[
+                  ["understood", "Got it"],
+                  ["still-confused", "Still confused"],
+                  ["curious", "Go deeper"]
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setUnderstandingSignal(value as UnderstandingSignal)}
+                    className={[
+                      "rounded-lg border px-3 py-2 text-xs font-semibold transition",
+                      understandingSignal === value
+                        ? "border-white bg-white text-slate-950"
+                        : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.08]"
+                    ].join(" ")}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <form
+                className="flex gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void submitText();
+                }}
               >
-                {recordingState === "recording" ? "Stop" : "Mic"}
-              </button>
-              <input
-                value={textInput}
-                onChange={(event) => setTextInput(event.target.value)}
-                placeholder="Type your doubt..."
-                className="min-h-12 min-w-0 flex-1 rounded-lg border border-white/10 bg-black/25 px-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/25"
-              />
-              <button
-                type="submit"
-                disabled={isSending || recordingState !== "idle" || !textInput.trim()}
-                className="rounded-lg bg-white px-5 text-sm font-semibold text-slate-950 disabled:opacity-50"
-              >
-                Send
-              </button>
-            </form>
-          </div>
-        </main>
+                <button
+                  type="button"
+                  onClick={recordingState === "recording" ? stopRecording : () => void startRecording()}
+                  disabled={recordingState === "processing" || isSending}
+                  className={[
+                    "grid size-12 shrink-0 place-items-center rounded-lg border text-sm font-semibold transition",
+                    recordingState === "recording"
+                      ? "border-red-300/40 bg-red-400/20 text-red-100"
+                      : "border-white/10 bg-white/[0.06] text-white hover:bg-white/[0.1]"
+                  ].join(" ")}
+                  aria-label={recordingState === "recording" ? "Stop recording" : "Start recording"}
+                >
+                  {recordingState === "recording" ? "Stop" : "Mic"}
+                </button>
+                <input
+                  value={textInput}
+                  onChange={(event) => setTextInput(event.target.value)}
+                  placeholder="Type your doubt..."
+                  className="min-h-12 min-w-0 flex-1 rounded-lg border border-white/10 bg-black/25 px-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/25"
+                />
+                <button
+                  type="submit"
+                  disabled={isSending || recordingState !== "idle" || !textInput.trim()}
+                  className="rounded-lg bg-white px-5 text-sm font-semibold text-slate-950 disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          </main>
+
+          <VisualPanel
+            assistantText={latestVisualAssistantText}
+            isOpen={isVisualPanelOpen}
+            onClose={() => setIsVisualPanelOpen(false)}
+            visual={latestVisual}
+          />
+        </div>
       </section>
     </AuroraBackground>
   );
